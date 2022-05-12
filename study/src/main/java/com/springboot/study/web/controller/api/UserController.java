@@ -9,13 +9,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.springboot.study.web.controller.api.data.User;
+import com.springboot.study.web.dto.AccountReqDto;
 import com.springboot.study.web.dto.CMRespDto;
 import com.springboot.study.web.dto.SigninReqDto;
 import com.springboot.study.web.dto.SignupReqDto;
@@ -76,13 +79,7 @@ public class UserController {
 	public ResponseEntity<?> signup(@Valid SignupReqDto signupReqDto, BindingResult bindingResult){//Valid-BindingResult(무조건 같이 붙여서 써줘야함)
 		//valid가 붙은 대상을 빈값체크를 하고나서 빈값이 있으면 bindingresult가 처리
 		
-		if(bindingResult.hasErrors()) {//error가 있으면
-			Map<String, String> errorMap = new HashMap<String, String>(); //리턴해주기위해
-			for(FieldError error : bindingResult.getFieldErrors()) { //fielderror:변수에러 /변수에 대한 모든 에러 들고옴
-				errorMap.put(error.getField(), error.getDefaultMessage());//error.getField()->어디가 비었는지(변수명) ,error.getDefaultMessage()->공백메세지
-			}
-			return new ResponseEntity<>(new CMRespDto<Map<String, String>>(-1,"필드오류",errorMap),HttpStatus.BAD_REQUEST);
-		}
+		
 		
 		return new ResponseEntity<>(new CMRespDto<SignupReqDto>(1,"회원가입완료.",signupReqDto), HttpStatus.OK);
 	}
@@ -90,13 +87,7 @@ public class UserController {
 	@PostMapping("/auth/signin")
 	public ResponseEntity<?> signin(@Valid SigninReqDto signinReqDto, BindingResult bindingResult){
 		
-		if(bindingResult.hasErrors()) {
-			Map<String, String> errorMap = new HashMap<String, String>(); 
-			for(FieldError error : bindingResult.getFieldErrors()) { 
-				errorMap.put(error.getField(), error.getDefaultMessage());
-			}
-			return new ResponseEntity<>(new CMRespDto<Map<String, String>>(-1,"필드오류",errorMap),HttpStatus.BAD_REQUEST);//<Map<String, String>>->errormap을 받음
-		}
+		
 		
 		User user = new User();
 		if(signinReqDto.getUsername().equals(user.getUsername()) && signinReqDto.getPassword().equals(user.getPassword())) {
@@ -106,6 +97,31 @@ public class UserController {
 		}
 		
 
+	}
+	
+	@PutMapping("/account/{username}")
+	public ResponseEntity<?> updateUser(@PathVariable String username, @Valid AccountReqDto accountReqDto, BindingResult bindingResult){
+		
+		
+		User user = new User();
+		if(!user.getUsername().equals(username)) {
+			return new ResponseEntity<>(new CMRespDto<String>(-1,"회원조회실패",username),HttpStatus.BAD_REQUEST);
+		}
+		
+		user.setName(accountReqDto.getName());
+		user.setEmail(accountReqDto.getEmail());
+		
+		return new ResponseEntity<>(new CMRespDto<User>(1,"회원수정완료",user),HttpStatus.OK);
+	}
+	
+	@DeleteMapping("/account/{username}")
+	public ResponseEntity<?> deleteUser(@PathVariable String username){
+		User user = new User();
+		if(!user.getUsername().equals(username)) {
+			return new ResponseEntity<>(new CMRespDto<String>(-1,"회원탈퇴실패",username),HttpStatus.BAD_REQUEST);
+		}
+		
+		return new ResponseEntity<>(new CMRespDto<String>(1,"회원탈퇴완료",username),HttpStatus.OK);
 	}
 	
 //	@GetMapping("/auth/signup")
