@@ -11,7 +11,10 @@ public class PageController {
 		return "index"; //jsp경로
 	}
 	
-	
+	@GetMapping("/board")
+	public String boardList(){
+		return "board/board-list";
+	}
 	
 	
 }
