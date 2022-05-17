@@ -5,29 +5,28 @@
 <head>
 <meta charset="UTF-8">
 <title>게시글 목록</title>
-<link rel = "stylesheet" href="/css/board/board-list.css">
-<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+<link rel="stylesheet" href="/css/board/board-list2.css">
+<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
 </head>
 <body>
 	<div id="container">
 		<div class="board-list">
 			<table class="board-list-table">
+			<thead>
 				<tr>
 					<th>번호</th>
 					<th>제목</th>
 					<th>작성자</th>
 					<th>조회수</th>
 				</tr>
+				</thead>
 				
-				<tr class="board-items">
-					<td>번호</td>
-					<td>제목</td>
-					<td>작성자</td>
-					<td>조회수</td>
-				</tr>
+				<tbody>
+				
+				</tbody>
 			</table>
 		</div>
-		<div class="board-list-page ">
+		<div class="board-list-page">
 			<div>1</div>
 			<div>2</div>
 			<div>3</div>
@@ -36,7 +35,6 @@
 		</div>
 		
 	</div>
-	
-	<script type="text/javascript" src="/js/board-list.js"></script>
+	<script type="text/javascript" src="/js/board-list2.js"></script>
 </body>
 </html>

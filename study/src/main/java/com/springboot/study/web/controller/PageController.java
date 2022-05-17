@@ -2,6 +2,7 @@ package com.springboot.study.web.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 public class PageController {
@@ -13,7 +14,12 @@ public class PageController {
 	
 	@GetMapping("/board")
 	public String boardList(){
-		return "board/board-list";
+		return "board/board-list2";
+	}
+	
+	@GetMapping("/board/dtl/{boardCode}")
+	public String boardDtl(@PathVariable int boardCode) {
+		return "board/board-dtl";
 	}
 	
 	
