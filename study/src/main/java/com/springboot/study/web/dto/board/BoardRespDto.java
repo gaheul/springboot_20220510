@@ -16,4 +16,5 @@ public class BoardRespDto {
 	private int usercode;
 	private String username;
 	private int boardCount;
+	private long boardCountAll;
 }

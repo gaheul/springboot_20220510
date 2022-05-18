@@ -1,14 +1,32 @@
 
 const boardListTable = document.querySelector('.board-list-table');
 const boardListPage = document.querySelector('.board-list-page');
-const pageButton = boardListPage.querySelectorAll('div');
+
 
 let nowPage = 1;
 
 load(nowPage);
 
  function load(page){ 
-	$.ajax({
+	let url = "/board/list?page=" +page; //파라미터
+	
+	fetch(url)
+	.then(response => { //responseentity
+		if(response.ok){ //status -> ok
+			return response.json(); // -> .then
+		}else{
+			throw new Error("비동기 처리 오류"); //->catch
+		}
+	})
+	.then(result => { //cmrdto
+			getBoardList(result.data); //return의 data(dto)
+			createPageNumber(result.data[0].boardCountAll);
+			getBoardItems();
+	})
+	.catch(error => {console.log(error)});
+	
+	
+	/*$.ajax({
 		type: "get",
 		url: "/board/list",
 		data: {
@@ -18,12 +36,40 @@ load(nowPage);
 		success: function(data){
 			let boardList = JSON.parse(data);
 			getBoardList(boardList.data); //return의 data(dto)
+			createPageNumber(boardList.data[0].boardCountAll);
 			getBoardItems();
 		},
 		error:function(){
 			alert("비동기 처리 오류");
 		}
-	})
+	});*/
+}
+
+ function createPageNumber(data){
+	const boardListPage = document.querySelector('.board-list-page');
+	const totalBoardCount = data;
+	const totalPageCount = data % 5 == 0 ? data / 5 : (data / 5) +1;
+	
+	const startIndex = nowPage % 5 == 0 ? nowPage -4 : nowPage - (nowPage % 5) +1;
+	const endIndex = startIndex + 4 <= totalPageCount ? startIndex + 4 : totalPageCount;
+	
+	let pageStr = ``;
+	
+	for(let i=startIndex; i <= endIndex; i++){
+		pageStr += `<div>${i}</div>`;
+	}
+	
+	pageStr += `<div>6</div>`;     
+	
+	boardListPage.innerHTML =pageStr;
+	
+	const pageButton = boardListPage.querySelectorAll('div');
+	for(let i=0; i<pageButton.length; i++){
+	pageButton[i].onclick =() =>{
+		nowPage = pageButton[i].textContent;
+		load(nowPage);
+	}
+}
 }
 
  function getBoardList(data){
@@ -49,7 +95,7 @@ load(nowPage);
 					<td>${data[i].boardCode}</td>
 					<td>${data[i].title}</td>
 					<td>${data[i].username}</td>
-					<td>${data[i].count}</td>
+					<td>${data[i].boardCount}</td>
 				</tr>
 		`	;
 	}
@@ -61,12 +107,7 @@ load(nowPage);
 	
 }
 
- for(let i=0; i<pageButton.length; i++){
-	pageButton[i].onclick =() =>{
-		nowPage = pageButton[i].textContent;
-		load(nowPage);
-	}
-}
+ 
 
 //getboardlist가 호출되서 tr이 만들어지고 난후 
 function getBoardItems(){
