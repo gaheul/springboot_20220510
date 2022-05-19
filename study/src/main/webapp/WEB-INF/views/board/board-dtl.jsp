@@ -15,8 +15,10 @@
 				
 			</table>
 		</div>
-		
-		
+		<div class="option-buttons">
+			<button class="update-btn">수정</button>
+			<button class="delete-btn">삭제</button>		
+		</div>
 	</div>
 	
 	<script type="text/javascript" src="/js/board-dtl.js"></script>

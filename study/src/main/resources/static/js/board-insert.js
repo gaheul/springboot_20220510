@@ -14,7 +14,7 @@ l(10,20); -> 실행했을 때 return이 a+b
 Promise : 비동기 처리를 위해 만들어진 객체
 */
 
-function test(data){
+/*function test(data){
 	return new Promise((resolve, reject) => {
 		if(data > 100){
 			resolve(data); //resolve는 then이 있을 때 실행되고 then은 데이터를 전달		
@@ -28,7 +28,7 @@ function test(data){
 test(500) //호출하면 return
 .then(testData => testData +100)
 .then(testData2 => alert(testData2)) 
-.catch(error => {console.log(error)});
+.catch(error => {console.log(error)});*/
 
 
 
@@ -59,7 +59,7 @@ submitBtn.onclick=()=>{
 }*/
 
 function submit(){
-	let url = "/board";
+	let url = "/api/board";
 	
 	let option = {
 		method: "POST",
@@ -82,7 +82,7 @@ function submit(){
 			throw new Error("정상적인 데이터를 응답받지 못했습니다.");
 		}
 	})
-	.then(data => {/*location.href ="/board/dtl/" + data.data;*/})
+	.then(data => {location.href ="/board-info/" + data.data;})
 	.catch(error => console.log(error));
 }
 	

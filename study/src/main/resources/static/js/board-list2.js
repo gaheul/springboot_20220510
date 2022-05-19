@@ -8,7 +8,7 @@ let nowPage = 1;
 load(nowPage);
 
  function load(page){ 
-	let url = "/board/list?page=" +page; //파라미터
+	let url = "/api/board/list?page=" +page; //파라미터
 	
 	fetch(url)
 	.then(response => { //responseentity
@@ -47,19 +47,33 @@ load(nowPage);
 
  function createPageNumber(data){
 	const boardListPage = document.querySelector('.board-list-page');
+	const preNextBtn = document.querySelectorAll('.pre-next-btn');
+	
 	const totalBoardCount = data;
 	const totalPageCount = data % 5 == 0 ? data / 5 : (data / 5) +1;
 	
 	const startIndex = nowPage % 5 == 0 ? nowPage -4 : nowPage - (nowPage % 5) +1;
 	const endIndex = startIndex + 4 <= totalPageCount ? startIndex + 4 : totalPageCount;
 	
+	
+	preNextBtn[0].onclick = () => {
+		nowPage = startIndex != 1 ? startIndex -1 : 1; 
+		
+		load(nowPage);
+	}
+	
+	preNextBtn[1].onclick = () => {
+		nowPage = endIndex != totalPageCount ? endIndex +1 : totalPageCount; 
+		load(nowPage);
+	}
+	
+	
 	let pageStr = ``;
 	
 	for(let i=startIndex; i <= endIndex; i++){
 		pageStr += `<div>${i}</div>`;
 	}
-	
-	pageStr += `<div>6</div>`;     
+	   
 	
 	boardListPage.innerHTML =pageStr;
 	
@@ -114,7 +128,7 @@ function getBoardItems(){
 	 const boardItems = document.querySelectorAll('.board-items');
 	 for(let i=0; i < boardItems.length; i++){
 		boardItems[i].onclick =() => {
-			location.href ="/board/dtl/" + boardItems[i].querySelectorAll('td')[0].textContent ;
+			location.href ="/board-info/" + boardItems[i].querySelectorAll('td')[0].textContent ;
 		}
 	}	
 }
