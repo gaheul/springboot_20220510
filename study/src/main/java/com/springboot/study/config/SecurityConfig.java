@@ -6,12 +6,23 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
-@EnableWebSecurity
-@Configuration //component -> ioc에 등록
+import com.springboot.study.config.oauth2.PrincipalOauth2UserService;
+
+import lombok.RequiredArgsConstructor;
+
+@EnableWebSecurity // 기존의 WebSecurityConfigurerAdapter의 설정을 비활성화 시키고 현재 class(securityConfig)의 설정을 따르겠다
+@Configuration //component -> ioc에 등록 / 설정객체(config..)에 달아줌 
+@RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter { //모든 security 에 대한 설정들 들어있음
 	
-	@Bean
+	private final PrincipalOauth2UserService principalOauth2UserService;
+	
+	@Bean //@Configuration이 있어서=> bean을 설정할 수 있음 
 	public BCryptPasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder(); //생성된게 ioc에 등록됨
 	}
@@ -19,22 +30,28 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter { //모든 secu
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable();
-		http.authorizeRequests()
-			.antMatchers("/api/board/**", "/","/board/list") // /api/board/** 요청이 들어오면 
-			.authenticated() //인증이 필요함
+		http.authorizeRequests() // 인증 요청
+			.antMatchers("/api/board/**", "/","/board/list") // url(/api/board/**) 요청이 들어오면 -> URI지정 
+			.authenticated() //인증이 필요함 -> 권한은 상관없음
 			.antMatchers("/api/v1/user/**") //권한설정
 			.access("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
 			.antMatchers("/api/v1/manager/**")
 			.access("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
 			.antMatchers("/api/v1/admin/**")
 			.access("hasRole('ROLE_ADMIN')")
-			.anyRequest()
-			.permitAll() //나머지 요청들은 권한 허용
+			.anyRequest() //다른 모든 요청들은
+			.permitAll() // 권한 허용 -> 모두에게 권한을 주겠다.
 			.and()
 			.formLogin() //parameter 받아서 로그인
 			.loginPage("/auth/signin") //로그인 페이지 get요청(view) ->페이지 띄워주기위함
 			.loginProcessingUrl("/auth/signin") //로그인 post 요청 (PrincipalDetailsService -> loadUserByUsername()이 호출)
-			.defaultSuccessUrl("/"); //로그인하자마자 보낼 페이지(/ -> index)
-		
+			.defaultSuccessUrl("/") //로그인하자마자 보낼 페이지(/ -> index)
+			.and()
+			.oauth2Login()
+			.loginPage("/auth/signin")
+			.userInfoEndpoint()
+			.userService(principalOauth2UserService)
+			.and()
+			.defaultSuccessUrl("/");
 	}
 }

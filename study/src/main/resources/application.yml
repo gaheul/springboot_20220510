@@ -39,7 +39,15 @@ spring:
     user:
       name: test
       password: 1234
-    
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 405910675150-i3fdgensb2d76u7670jgq69lbe9n38js.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+            - email
+            - profile
 mybatis:
   mapper-locations:
   - /mappers/*.xml
