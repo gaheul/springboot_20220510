@@ -23,6 +23,8 @@ public class User {
 	private String roles; //ROLE_USER,ROLE_MANAGER,ROLE_ADMIN / ROLE_ :security형식
 	private String provider;
 	
+	private String profile_img_url;
+	
 	public List<String> getRoleList(){
 		if(this.roles.length() > 0) { //권한이 있다면
 			return Arrays.asList(this.roles.split(",")); //문자열을 각각의 형식에 맞게끔 배열을 리스트로 바꿈 / split:배열로 반환
