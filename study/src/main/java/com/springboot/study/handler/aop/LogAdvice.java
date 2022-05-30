@@ -6,32 +6,40 @@ import java.util.Map;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.CodeSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StopWatch;
 
 @Aspect
 @Component
 public class LogAdvice {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LogAdvice.class);
 	
+	@Pointcut("within(com.springboot.study..*)")
+	private void pointcut() {}
+	
 			//within: 해당 패키지 내의 모든 메서드에 적용  /study..*:study내에 있는 모든 메서드
-	@Around("within(com.springboot.study..*)") //study안에 있는 모든 메소드 실행
+	@Around("pointcut()") //study안에 있는 모든 메소드 실행
 	public Object logging(ProceedingJoinPoint pjp) throws Throwable {
-		long startAt = System.currentTimeMillis(); //현재시간
+		//long startAt = System.currentTimeMillis(); //현재시간
+		StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
 		
 		Map<String, Object> params = getParams(pjp);
 		
-		LOGGER.info("----------Advice Call: {}({}) = {}", pjp.getSignature().getDeclaringTypeName(),pjp.getSignature().getName(),
+		LOGGER.info("--Advice Call: {}({}) = {}", pjp.getSignature().getDeclaringTypeName(),pjp.getSignature().getName(),
 				params); //"데이터":매개변수에 들어있느 모든 값->getParams() / getDeclaringTypeName():클래스명
 		
 		Object result = pjp.proceed(); //메서드 호출 / 해당 메서드가 실행되는 전 후 
 		
-		long endAt = System.currentTimeMillis();
+		//long endAt = System.currentTimeMillis();
+		stopWatch.stop();
 		
-		LOGGER.info("----------Advice End: {}({}) = {} ({}ms)", pjp.getSignature().getDeclaringTypeName(),
-				pjp.getSignature().getName(),result,endAt - startAt); //result :해당 메서드 실행 결과(responseEntity) / endAt - startAt : 실행 시간
+		LOGGER.info("--Advice End: {}({}) = {} ({}ms)", pjp.getSignature().getDeclaringTypeName(),
+				pjp.getSignature().getName(),result,stopWatch.getTotalTimeMillis()); //result :해당 메서드 실행 결과(responseEntity) / endAt - startAt : 실행 시간
 		
 		return result;
 	}

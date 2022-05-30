@@ -3,9 +3,13 @@ package com.springboot.study.handler.aop;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,18 +34,23 @@ import com.springboot.study.handler.ex.CustomValidationApiException;
 
 @Aspect
 @Component
-public class ValidationAdvice {
+public class ValidationAop {
 	
-	private final Logger LOGGER = LoggerFactory.getLogger(ValidationAdvice.class);
+	private final Logger LOGGER = LoggerFactory.getLogger(ValidationAop.class);
 	
-			//execution세부적으로 메소드 지정가능한것 / * :리턴타입(Integer,User,User*....) /controller..:controller하위에 있느 ㄴ모든 
-	//@Around("execution(* com.springboot.study.web.controller.api.*Controller.*(..))")
-	@Around("execution(* com.springboot.study.test.*Controller.*(..))")
-	public Object apiAdvice(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {//ProceedingJoinPoint target의 모든정보
+	@Pointcut("within(com.springboot.study.web.controller..*)")
+	private void pointcut() {}
+	
+	@Pointcut("@annotation(com.springboot.study.annotation.Validation)")
+	private void enableValid() {}
+	
+	@Before("pointcut() && enableValid()") //before 해당 메소드가 실행되기 전 - around 실행되기 전후 동시 - after 실행된 후 
+	public void apiAdvice(JoinPoint joinPoint) throws Throwable {//ProceedingJoinPoint target의 모든정보
 //		LOGGER.info("내가 작성한 로그:{},{}",proceedingJoinPoint.getSignature().getDeclaringTypeName(), 
 //				    proceedingJoinPoint.getSignature().getName()); //typename:class,interface명  getname:메소드명
 		
-		Object[] args = proceedingJoinPoint.getArgs(); //proceedingJoinPoint->모든 매개변수를 들고옴(해당 메소드마다 매개변수다름).getargs : 매개변수의 모든값
+		Object[] args = joinPoint.getArgs(); //proceedingJoinPoint->모든 매개변수를 들고옴(해당 메소드마다 매개변수다름).getargs : 매개변수의 모든값
+		
 		for(Object arg : args) {
 			if(arg instanceof BindingResult) {//매개변수의 원래 타입 -> bindingresult인지 확인
 				BindingResult bindingResult = (BindingResult) arg;
@@ -57,10 +66,12 @@ public class ValidationAdvice {
 			}
 		}
 		
+	}
+	
+	//@AfterReturning:return이 있는 경우(return된 값 쓰고싶을 때) -> return이 된 후
+	@AfterReturning(value = "pointcut() && enableValid()", returning = "returnObj")
+	public void afterReturn(JoinPoint joinPoint, Object returnObj) {
+		LOGGER.info("유효성 검사 완료: {}",returnObj);
 		
-		
-		
-		
-		return proceedingJoinPoint.proceed(); //filter-chain -> 해당target메소드가 실행 이전(전처리)
 	}
 }
